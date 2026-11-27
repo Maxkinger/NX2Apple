@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: C <c@CdeMacBook-Pro.local>
+Date: Fri, 27 Nov 2026 12:58:08 +0800
+Subject: [PATCH] build_seed/tests: make SIGTERM interruption test
+ deterministic
+
+Upstream-Status: fork-only
+Reason: Fix CI failures in t_output_stream and zstd SIGTERM test
+Issue: Maxkinger/NX2Apple#0
+
+---
+ dm/tools/tests/test_build_seed_zstd.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/dm/tools/tests/test_build_seed_zstd.py b/dm/tools/tests/test_build_seed_zstd.py
+index 6fd2928..ef136e3 100644
+--- a/dm/tools/tests/test_build_seed_zstd.py
++++ b/dm/tools/tests/test_build_seed_zstd.py
+@@ -332,11 +332,11 @@ class BuildSeedZstdTests(unittest.TestCase):
+         tid2 = '0100000000000402'
+         _, img1 = self._make_legacy_seed_with_uncompressed_img(
+             seed_root, tid1, chain='1111aaaa2222bbbb',
+-            extra_files={'0000000000000001_b.metal': b'A' * 200000},
++            extra_files={'0000000000000001_b.metal': b'A' * (2 * 1024 * 1024)},
+         )
+         _, img2 = self._make_legacy_seed_with_uncompressed_img(
+             seed_root, tid2, chain='2222bbbb3333cccc',
+-            extra_files={'0000000000000001_b.metal': b'B' * 100000},
++            extra_files={'0000000000000001_b.metal': os.urandom(1536 * 1024)},
+         )
+ 
+         # Spawn real subprocess and send SIGTERM right after item 1 completes
+@@ -349,6 +349,8 @@ class BuildSeedZstdTests(unittest.TestCase):
+                 str(seed_root),
+                 '--progress',
+                 'json',
++                '--level',
++                '19',
+             ],
+             stdout=subprocess.PIPE,
+             stderr=subprocess.PIPE,

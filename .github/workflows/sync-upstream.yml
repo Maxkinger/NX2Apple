@@ -139,9 +139,9 @@ jobs:
             cat tail.log
             echo '```'
           } > issue.md
-          N=$(gh issue list -R "${{ github.repository }}" --state open --search "Upstream sync blocked in:title" --json number --jq '.[0].number // empty')
+          N=$(gh issue list -R "${{ github.repository }}" --state open --search "Upstream sync blocked in:title" --json number --jq '.[0].number // empty' 2>/dev/null || true)
           if [ -n "$N" ]; then
-            gh issue edit "$N" -R "${{ github.repository }}" --title "$TITLE" --body-file issue.md
+            gh issue edit "$N" -R "${{ github.repository }}" --title "$TITLE" --body-file issue.md || echo "issue update failed; the log is in the workflow run"
           else
             gh issue create -R "${{ github.repository }}" --title "$TITLE" --body-file issue.md || echo "issue creation failed; the log is in the workflow run"
           fi

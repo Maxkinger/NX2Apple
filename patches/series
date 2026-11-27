@@ -61,3 +61,5 @@
 0081-gfx-gpu-bc-to-astc-4x4-transcode.patch
 0082-gfx-tests-align-early-fragment-tests-sumo-and-vb.patch
 0083-scripts-mac-app-ignore-stale-prewarm-archives-wh.patch
+0084-host-tests-use-ostream-acquire-release-in-t-outp.patch
+0085-build-seed-tests-make-sigterm-interruption-test.patch
