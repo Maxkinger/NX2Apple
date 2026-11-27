@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: C <c@CdeMacBook-Pro.local>
+Date: Fri, 27 Nov 2026 12:58:08 +0800
+Subject: [PATCH] host/tests: use ostream_acquire/release in t_output_stream
+
+Upstream-Status: fork-only
+Reason: Fix CI failures in t_output_stream and zstd SIGTERM test
+Issue: Maxkinger/NX2Apple#0
+
+---
+ dm/host/tests/t_output_stream.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dm/host/tests/t_output_stream.c b/dm/host/tests/t_output_stream.c
+index 6a8d531..57e85ff 100644
+--- a/dm/host/tests/t_output_stream.c
++++ b/dm/host/tests/t_output_stream.c
+@@ -45,10 +45,11 @@ int main(void) {
+     for (int i = 0; i < FRAMES; i++) { pcm[2 * i] = (float)i / FRAMES; pcm[2 * i + 1] = i == 1 ? 2.0f : -0.5f; }
+     if (h_os_Write(stream, pcm, FRAMES) != FRAMES) FAIL("write");
+     if (h_os_Free(stream) != CAP - FRAMES) FAIL("free after one write: %d", h_os_Free(stream));
+-    ostream *o = os_of(stream); aout *a = ao(o->key);
++    ostream *o = ostream_acquire(stream); aout *a = ao(o->key);
+     oblock *k = (oblock *)a->q[0];
+     if (k->b.size != FRAMES * 2 * 2 || k->pcm[0] != 0 || k->pcm[1] != -16383 || k->pcm[3] != 32767 || k->pcm[2 * 480] != (int16_t)(0.5f * 32767.0f))
+         FAIL("block layout: size %llu, %d %d %d %d", (unsigned long long)k->b.size, k->pcm[0], k->pcm[1], k->pcm[3], k->pcm[960]);
++    ostream_release(o);
+     for (int i = 1; i < CAP / FRAMES; i++) if (h_os_Write(stream, pcm, FRAMES) != FRAMES) FAIL("write %d", i);
+     if (h_os_Free(stream) != 0 || h_os_Write(stream, pcm, FRAMES) != 0) FAIL("a full stream took more frames");
+ 

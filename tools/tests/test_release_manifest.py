@@ -47,6 +47,7 @@ class Manifest(unittest.TestCase):
         self.env = dict(os.environ, **{R.KEY_ENV: self.secret})
         self.old_env = dict(os.environ)
         os.environ[R.KEY_ENV] = self.secret
+        os.environ.pop('GITHUB_REPOSITORY', None)
         self.addCleanup(self.restore)
 
     def restore(self):
@@ -323,7 +324,7 @@ class Unsigned(unittest.TestCase):
         with zipfile.ZipFile(self.engine, 'w') as z:
             z.writestr('.engine-id', EID + '\n'); z.writestr('.upstream-ref', PIN + '\n'); z.writestr('dm/a.c', 'x')
         self.old_env = dict(os.environ)
-        os.environ.pop(R.KEY_ENV, None); os.environ.pop('GITHUB_ACTIONS', None)
+        os.environ.pop(R.KEY_ENV, None); os.environ.pop('GITHUB_ACTIONS', None); os.environ.pop('GITHUB_REPOSITORY', None)
         self.addCleanup(self.restore)
 
     def restore(self):
@@ -392,7 +393,7 @@ class ReleaseCandidate(unittest.TestCase):
         self.engine = self.zip('NX2Apple-engine.zip', EID)
         self.app = self.tmp / 'NX2Apple-macOS-arm64.zip'; self.app.write_bytes(b'app bytes')
         self.old_env = dict(os.environ)
-        os.environ.pop(R.KEY_ENV, None); os.environ.pop('GITHUB_ACTIONS', None)
+        os.environ.pop(R.KEY_ENV, None); os.environ.pop('GITHUB_ACTIONS', None); os.environ.pop('GITHUB_REPOSITORY', None)
         self.addCleanup(self.restore)
 
     def restore(self):
